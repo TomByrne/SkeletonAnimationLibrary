@@ -150,12 +150,6 @@
 		 */
 		public function advanceTime(passedTime:Number):void
 		{
-			if (passedTime < 0)
-			{
-				var currentTime:Number = getTimer() * 0.001;
-				passedTime = currentTime - _time;
-				_time = currentTime;
-			}
 			
 			passedTime *= _timeScale;
 			

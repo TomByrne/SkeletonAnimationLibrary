@@ -65,6 +65,7 @@
 		private var _frameTweenEasing:Number;
 		
 		private var _isPause:Boolean;
+		private var _isAtEnd:Boolean;
 		private var _rawDuration:Number;
 		private var _nextFrameDataTimeEdge:Number;
 		private var _frameDuration:Number;
@@ -111,6 +112,7 @@
 			_node.skewX %= Math.PI * 2;
 			_node.skewY %= Math.PI * 2;
 			_isPause = false;
+			_isAtEnd = false;
 			_currentFrameData = null;
 			_loop = loop?0:-1;
 			
@@ -204,7 +206,14 @@
 		/** @private */
 		internal function advanceTime(progress:Number, playType:int):void
 		{
-			if(_isPause || !_movementBoneData)
+			
+			var frameStart:Number = _nextFrameDataTimeEdge-_frameDuration;
+			
+			if (_isAtEnd && progress*_rawDuration < frameStart) {
+				_isAtEnd = false;
+			}
+			
+			if(_isAtEnd || _isPause || !_movementBoneData)
 			{
 				return;
 			}
@@ -239,7 +248,7 @@
 			else if (playType == Animation.SINGLE && progress == 1)
 			{
 				_currentFrameData = _movementBoneData._frameList[0];
-				_isPause = true;
+				_isAtEnd = true;
 			}
 			else
 			{
@@ -350,12 +359,24 @@
 		private function updateFrameData(progress:Number, isList:Boolean= false):Number
 		{
 			var playedTime:Number = _rawDuration * progress;
-			if (playedTime >= _nextFrameDataTimeEdge)
+			var frameStart:Number = _nextFrameDataTimeEdge-_frameDuration;
+			if (playedTime < frameStart || playedTime >= _nextFrameDataTimeEdge)
 			{
 				var length:int = _movementBoneData._frameList.length;
-				do 
-				{
-					var currentFrameDataID:int = _nextFrameDataID;
+				while (playedTime < frameStart){
+					if (-- _nextFrameDataID < 0){
+						_nextFrameDataID = length-1;
+					}
+					_frameDuration = _movementBoneData._frameList[_nextFrameDataID].duration;
+					frameStart = _nextFrameDataTimeEdge-_frameDuration;
+					_nextFrameDataTimeEdge -= _frameDuration;
+				}
+				var currentFrameDataID:int = _nextFrameDataID-1;
+				if (currentFrameDataID < 0){
+					currentFrameDataID = length-1;
+				}
+				while (playedTime >= _nextFrameDataTimeEdge){
+					currentFrameDataID = _nextFrameDataID;
 					_frameDuration = _movementBoneData._frameList[currentFrameDataID].duration;
 					_nextFrameDataTimeEdge += _frameDuration;
 					if (++ _nextFrameDataID >= length)
@@ -363,7 +384,6 @@
 						_nextFrameDataID = 0;
 					}
 				}
-				while (playedTime >= _nextFrameDataTimeEdge);
 				
 				var currentFrameData:FrameData = _movementBoneData._frameList[currentFrameDataID];
 				var nextFrameData:FrameData = _movementBoneData._frameList[_nextFrameDataID];
@@ -383,11 +403,10 @@
 				
 				if(isList && _nextFrameDataID == 0)
 				{
-					_isPause = true;
+					_isAtEnd = true;
 					return 0;
 				}
 			}
-			
 			progress = 1 - (_nextFrameDataTimeEdge - playedTime) / _frameDuration;
 			
 			var tweenEasing:Number = isNaN(_tweenEasing)?_frameTweenEasing:_tweenEasing;
