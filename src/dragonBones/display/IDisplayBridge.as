@@ -22,6 +22,13 @@ package dragonBones.display
 		 */
 		function get display():Object;
 		function set display(value:Object):void;
+		
+		/**
+		 * Indicates the original display object relative to specific display engine.
+		 */
+		function get mask():Object;
+		function set mask(value:Object):void;
+		
 		/**
 		 * Updates the transform of the display object
 		 * @param	matrix

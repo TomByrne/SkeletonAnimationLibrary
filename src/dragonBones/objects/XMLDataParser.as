@@ -205,6 +205,7 @@
 		dragonBones_internal static function parseBoneData(boneXML:XML, parentXML:XML, boneData:BoneData):void
 		{
 			parseNode(boneXML, boneData.node);
+			boneData.mask = boneXML.attribute(ConstValues.A_MASK);
 			if (parentXML)
 			{
 				boneData._parent = parentXML.attribute(ConstValues.A_NAME);

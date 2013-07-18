@@ -17,6 +17,7 @@ package dragonBones.objects
 		}
 		
 		public var node:BoneTransform;
+		public var mask:String;
 		
 		public function BoneData()
 		{

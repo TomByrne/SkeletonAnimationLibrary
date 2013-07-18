@@ -11,6 +11,8 @@
 	import dragonBones.objects.BoneTransform;
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
+	import starling.display.MovieClip;
+	import starling.extensions.pixelmask.PixelMaskDisplayObject;
 	
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
@@ -26,7 +28,33 @@
 		/**
 		 * @private
 		 */
-		protected var _display:Object;
+		protected var _display:DisplayObject;
+		
+		/**
+		 * @private
+		 */
+		protected var _mask:DisplayObject;
+		
+		/**
+		 * @private
+		 */
+		protected var _addedDisplay:Object;
+		
+		/**
+		 * @private
+		 */
+		protected var _maskWrapper:PixelMaskDisplayObject;
+		
+		/**
+		 * @private
+		 */
+		protected var _container:Object;
+		
+		/**
+		 * @private
+		 */
+		protected var _addIndex:int;
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -63,7 +91,7 @@
 				return;
 			}*/
 			
-			if (_display)
+			/*if (_display)
 			{
 				var parent:* = _display.parent;
 				if (parent)
@@ -71,9 +99,57 @@
 					var index:int = _display.parent.getChildIndex(_display);
 				}
 				removeDisplay();
+			}*/
+			if (_mask && _display) {
+				_maskWrapper.removeChild(_display);
 			}
-			_display = value;
-			addDisplay(parent, index);
+			_display = value as DisplayObject;
+			/*addDisplay(parent, index);
+			if (!_mask) {
+				_realDisplay = _display;
+			}*/
+			if(_display){
+				if (_mask) {
+					_maskWrapper.addChild(_display);
+				}else {
+					assessDisplay();
+				}
+			}
+		}
+		/**
+		 * @inheritDoc
+		 */
+		public function get mask():Object
+		{
+			return _mask;
+		}
+		/**
+		 * @private
+		 */
+		public function set mask(value:Object):void
+		{
+			if (_mask == value)
+			{
+				return;
+			}
+			
+			_mask = value as DisplayObject;
+			
+			if (_mask)
+			{
+				if (!_maskWrapper)_maskWrapper = new PixelMaskDisplayObject();
+				
+				if (_mask.parent) {
+					_mask.parent.removeChild(_mask);
+				}
+			}
+			if (_maskWrapper) _maskWrapper.mask = _mask;
+			
+			assessDisplay();
+			if (_mask && _display)
+			{
+				_maskWrapper.addChild(_display);
+			}
 		}
 		
 		/**
@@ -82,6 +158,7 @@
 		public function StarlingDisplayBridge()
 		{
 		}
+		
 		
 		/**
 		 * @inheritDoc
@@ -109,6 +186,8 @@
 			}
 			//
 			_display.visible = visible;
+			
+			if(_mask)_mask.visible = false;
 		}
 		
 		/**
@@ -116,16 +195,34 @@
 		 */
 		public function addDisplay(container:Object, index:int = -1):void
 		{
-			if (container && _display)
-			{
-				if (index < 0)
-				{
-					container.addChild(_display);
+			_container = container;
+			_addIndex = index;
+			assessDisplay();
+		}
+		
+		private function assessDisplay():void {
+			if (_container) {
+				var display:Object;
+				if (_mask) {
+					display = _maskWrapper;
+				}else {
+					display = _display;
 				}
-				else
-				{
-					container.addChildAt(_display, Math.min(index, container.numChildren));
+				if (_addedDisplay == display) return;
+				
+				var index:int = _addIndex;
+				if (_addedDisplay) {
+					index = _addedDisplay.parent.getChildIndex(_addedDisplay);
+					_addedDisplay.parent.removeChild(_addedDisplay);
 				}
+				if (display) {
+					_container.addChildAt(display, index);
+					_addedDisplay = display;
+				}
+				
+			}else if (_addedDisplay) {
+				_addedDisplay.parent.removeChild(_addedDisplay);
+				_addedDisplay = null;
 			}
 		}
 		
@@ -134,9 +231,9 @@
 		 */
 		public function removeDisplay():void
 		{
-			if (_display && _display.parent)
+			if (_addedDisplay && _addedDisplay.parent)
 			{
-				_display.parent.removeChild(_display);
+				_addedDisplay.parent.removeChild(_addedDisplay);
 			}
 		}
 	}

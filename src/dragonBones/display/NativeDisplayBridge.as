@@ -27,6 +27,11 @@ package dragonBones.display
 		protected var _display:DisplayObject;
 		
 		/**
+		 * @private
+		 */
+		protected var _mask:DisplayObject;
+		
+		/**
 		 * @inheritDoc
 		 */
 		public function get display():Object
@@ -50,9 +55,36 @@ package dragonBones.display
 					var index:int = _display.parent.getChildIndex(_display);
 				}
 				removeDisplay();
+				_display.mask = null;
 			}
 			_display = value as DisplayObject;
+			if (_display)
+			{
+				_display.mask = _mask;
+			}
 			addDisplay(parent, index);
+		}
+		/**
+		 * @inheritDoc
+		 */
+		public function get mask():Object
+		{
+			return _mask;
+		}
+		/**
+		 * @private
+		 */
+		public function set mask(value:Object):void
+		{
+			if (_mask == value)
+			{
+				return;
+			}
+			_mask = value as DisplayObject;
+			if (_display)
+			{
+				_display.mask = _mask;
+			}
 		}
 		
 		/**

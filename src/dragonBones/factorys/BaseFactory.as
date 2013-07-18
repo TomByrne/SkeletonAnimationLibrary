@@ -23,6 +23,7 @@ package dragonBones.factorys
 	import dragonBones.textures.SubTextureData;
 	import dragonBones.utils.BytesType;
 	import dragonBones.utils.dragonBones_internal;
+	import flash.utils.Dictionary;
 	
 	import flash.display.Bitmap;
 	import flash.display.Loader;
@@ -321,14 +322,24 @@ package dragonBones.factorys
 			armature.name = armatureName;
 			armature.animation.animationData = animationData;
 			var boneNames:Vector.<String> = armatureData.boneNames;
-			for each(var boneName:String in boneNames)
+			var boneName:String;
+			var boneData:BoneData;
+			for each(boneName in boneNames)
 			{
-				var boneData:BoneData = armatureData.getBoneData(boneName);
+				boneData = armatureData.getBoneData(boneName);
 				if(boneData)
 				{
 					var bone:Bone = buildBone(boneData);
 					bone.name = boneName;
 					armature.addBone(bone, boneData.parent);
+				}
+			}
+			var mask:Bone;
+			for each(boneName in boneNames)
+			{
+				boneData = armatureData.getBoneData(boneName);
+				if (boneData && boneData.mask && (mask = armature.getBone(boneData.mask))) {
+					setBoneMask(armature.getBone(boneName), mask);
 				}
 			}
 			armature._bonesIndexChanged = true;
@@ -414,6 +425,11 @@ package dragonBones.factorys
 				}
 			}
 			return bone;
+		}
+		/** @private */
+		protected function setBoneMask(bone:Bone, mask:Bone):void
+		{
+			bone.mask = mask;
 		}
 		/** @private */
 		protected function loaderCompleteHandler(e:Event):void

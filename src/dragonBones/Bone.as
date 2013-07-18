@@ -113,6 +113,7 @@
 		private var _displayList:Array;
 		private var _displayIndex:int;
 		private var _parent:Bone;
+		private var _mask:Bone;
 		
 		private var _colorTransformChange:Boolean;
 		private var _colorTransform:ColorTransform;
@@ -140,6 +141,23 @@
 		public function get visible():Object
 		{
 			return _boneVisible;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set mask(value:Bone):void
+		{
+			_mask = value;
+			if (_mask)_mask.visible = false;
+			_displayBridge.mask = (_mask?_mask.display:null);
+		}
+		/**
+		 * @private
+		 */
+		public function get mask():Bone
+		{
+			return _mask;
 		}
 		
 		/**
