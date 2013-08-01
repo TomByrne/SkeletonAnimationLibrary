@@ -330,11 +330,13 @@ package dragonBones
 		public function updateBonesZ():void
 		{
 			_boneDepthList.sort(sortBoneZIndex);
-			for each(var bone:Bone in _boneDepthList)
+			for(var i:int=0;  i<_boneDepthList.length; ++i)
 			{
+				var bone:Bone = _boneDepthList[i];
+				
 				if(bone._isOnStage)
 				{
-					bone._displayBridge.addDisplay(_display);
+					bone._displayBridge.addDisplay(_display, i);
 				}
 			}
 			_bonesIndexChanged = false;
