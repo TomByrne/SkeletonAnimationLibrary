@@ -129,7 +129,7 @@ package starling.extensions.pixelmask
 				var width:Number = _mask.width * _mask.transformationMatrix.a;
 				var height:Number = _mask.height * _mask.transformationMatrix.d;
 				
-				_maskRenderTexture = new RenderTexture(width, height, false, _scaleFactor);
+				_maskRenderTexture = new RenderTexture(width+1, height+1, false, _scaleFactor); // adding 1 fixes an edge issue
 				_renderTexture = new RenderTexture(width, height, false, _scaleFactor);
 				
 				// create image with the new render texture

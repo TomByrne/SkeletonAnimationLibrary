@@ -400,7 +400,7 @@
 		/** @private */
 		dragonBones_internal function advanceTime(passedTime:Number):void
 		{
-			if (_isPlaying && (_loop > 0 || (_currentTime < _totalTime && passedTime>0) || (_currentTime > 0 && passedTime<0) || _totalTime == 0))
+			if (_isPlaying && (_loop >= 0 || (_currentTime < _totalTime && passedTime>0) || (_currentTime > 0 && passedTime<0) || _totalTime == 0))
 			{
 				var progress:Number;
 				if (_totalTime == 0)
