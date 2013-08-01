@@ -292,6 +292,7 @@
 			origin.scaleX = 1;
 			origin.scaleY = 1;
 			global = new BoneTransform();
+			global.z = -1;
 			node = new BoneTransform();			
 			_displayBridge = displayBrideg;			
 			_children = new Vector.<Bone>;			

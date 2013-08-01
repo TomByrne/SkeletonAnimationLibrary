@@ -216,7 +216,11 @@
 					_addedDisplay.parent.removeChild(_addedDisplay);
 				}
 				if (display) {
-					_container.addChildAt(display, index);
+					if (index == -1) {
+						_container.addChild(display);
+					}else{
+						_container.addChildAt(display, index);
+					}
 					_addedDisplay = display;
 				}
 				

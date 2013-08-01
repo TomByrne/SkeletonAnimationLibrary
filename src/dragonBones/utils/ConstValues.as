@@ -57,6 +57,7 @@
 		public static const A_GREEN_MULTIPLIER:String = "gM";
 		public static const A_BLUE_MULTIPLIER:String = "bM";
 		public static const A_MASK:String = "mask";
+		public static const A_BACKGROUND_COLOR:String = "backgroundColor";
 		public static const V_SOUND_LEFT:String = "l";
 		public static const V_SOUND_RIGHT:String = "r";
 		public static const V_SOUND_LEFT_TO_RIGHT:String = "lr";
