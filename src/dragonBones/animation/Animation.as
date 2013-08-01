@@ -400,15 +400,10 @@
 		/** @private */
 		dragonBones_internal function advanceTime(passedTime:Number):void
 		{
-			if (_isPlaying && (_loop > 0 || _currentTime < _totalTime || _totalTime == 0))
+			if (_isPlaying && (_loop >= 0 || (_currentTime < _totalTime && passedTime>0) || (_currentTime > 0 && passedTime<0) || _totalTime == 0))
 			{
 				var progress:Number;
-				if (_totalTime > 0)
-				{
-					_currentTime += passedTime * _timeScale;
-					progress = _currentTime / _totalTime;
-				}
-				else
+				if (_totalTime == 0)
 				{
 					_currentTime = 1;
 					_totalTime = 1;
@@ -467,6 +462,9 @@
 							break;
 					}
 				}
+				
+				_currentTime += passedTime * _timeScale;
+				progress = _currentTime / _totalTime;
 				
 				var i:int = _armature._boneDepthList.length;
 				while(i --)
