@@ -8,16 +8,17 @@
 	*/
 
 	
-	import dragonBones.objects.BoneTransform;
+	import dragonBones.objects.DBTransform;
+	
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
-	import starling.display.MovieClip;
-	import starling.extensions.pixelmask.PixelMaskDisplayObject;
 	
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
-	import starling.display.Quad;
 	import starling.display.Image;
+	import starling.display.Quad;
+	import starling.textures.Texture;
+	import dragonBones.display.StarlingMask;
 	
 	/**
 	 * The StarlingDisplayBridge class is an implementation of the IDisplayBridge interface for starling.display.DisplayObject.
@@ -25,36 +26,18 @@
 	 */
 	public class StarlingDisplayBridge implements IDisplayBridge
 	{
-		/**
-		 * @private
-		 */
-		protected var _display:DisplayObject;
+		private var _imageBackup:Image;
+		private var _textureBackup:Texture;
+		private var _pivotXBackup:Number;
+		private var _pivotYBackup:Number;
 		
-		/**
-		 * @private
-		 */
-		protected var _mask:DisplayObject;
+		private var _display:Object;
+		private var _addedDisplay:Object;
+		private var _mask:Object;
+		private var _maskWrapper:StarlingMask;
 		
-		/**
-		 * @private
-		 */
-		protected var _addedDisplay:Object;
-		
-		/**
-		 * @private
-		 */
-		protected var _maskWrapper:PixelMaskDisplayObject;
-		
-		/**
-		 * @private
-		 */
-		protected var _container:Object;
-		
-		/**
-		 * @private
-		 */
-		protected var _addIndex:int;
-		
+		private var _addIndex:int;
+		private var _container:Object;
 		/**
 		 * @inheritDoc
 		 */
@@ -62,34 +45,36 @@
 		{
 			return _display;
 		}
-		/**
-		 * @private
-		 */
 		public function set display(value:Object):void
 		{
-			if (_display == value)
-			{
-				return;
-			}
-			
-			//Thanks Jian
-			//bug replace image.texture will lost displayList[0].texture
-			/*if (_display is Image && value is Image)
+			if (_display is Image && value is Image)
 			{
 				var from:Image = _display as Image;
 				var to:Image = value as Image;
 				if (from.texture == to.texture)
 				{
+					if(from == _imageBackup)
+					{
+						from.texture = _textureBackup;
+						from.pivotX = _pivotXBackup;
+						from.pivotY = _pivotYBackup;
+						from.readjustSize();
+					}
 					return;
 				}
-				
+			
 				from.texture = to.texture;
 				//update pivot
 				from.pivotX = to.pivotX;
 				from.pivotY = to.pivotY;
 				from.readjustSize();
 				return;
-			}*/
+			}
+			
+			if (_display == value)
+			{
+				return;
+			}
 			
 			/*if (_display)
 			{
@@ -99,56 +84,64 @@
 					var index:int = _display.parent.getChildIndex(_display);
 				}
 				removeDisplay();
-			}*/
-			if (_mask && _display) {
-				_maskWrapper.removeChild(_display);
 			}
-			_display = value as DisplayObject;
-			/*addDisplay(parent, index);
-			if (!_mask) {
-				_realDisplay = _display;
-			}*/
+			else */if(!_display && value is Image && !_imageBackup)
+			{
+				_imageBackup = value as Image;
+				_textureBackup = _imageBackup.texture;
+				_pivotXBackup = _imageBackup.pivotX;
+				_pivotYBackup = _imageBackup.pivotY;
+			}
+			_display = value;
+			//addDisplay(parent, index);
 			if(_display){
 				if (_mask) {
-					_maskWrapper.addChild(_display);
+					_maskWrapper.addChild(_display as DisplayObject);
 				}else {
 					assessDisplay();
 				}
 			}
 		}
-		/**
-		 * @inheritDoc
-		 */
+		
+		public function get visible():Boolean
+		{
+			return _display?_display.visible:false;
+		}
+		public function set visible(value:Boolean):void
+		{
+			if(_display)
+			{
+				_display.visible = value;
+			}
+		}
+		
 		public function get mask():Object
 		{
 			return _mask;
 		}
-		/**
-		 * @private
-		 */
 		public function set mask(value:Object):void
 		{
 			if (_mask == value)
 			{
 				return;
 			}
-			
+
 			_mask = value as DisplayObject;
-			
+
 			if (_mask)
 			{
-				if (!_maskWrapper)_maskWrapper = new PixelMaskDisplayObject();
-				
+				if (!_maskWrapper)_maskWrapper = new StarlingMask();
+
 				if (_mask.parent) {
 					_mask.parent.removeChild(_mask);
 				}
 			}
-			if (_maskWrapper) _maskWrapper.mask = _mask;
-			
+			if (_maskWrapper) _maskWrapper.mask = _mask as DisplayObject;
+
 			assessDisplay();
 			if (_mask && _display)
 			{
-				_maskWrapper.addChild(_display);
+				_maskWrapper.addChild(_display as DisplayObject);
 			}
 		}
 		
@@ -159,35 +152,54 @@
 		{
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		public function dispose():void
+		{
+			_display = null;
+			_imageBackup = null;
+			_textureBackup = null;
+		}
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function update(matrix:Matrix, node:BoneTransform, colorTransform:ColorTransform, visible:Boolean):void
+		public function updateTransform(matrix:Matrix, transform:DBTransform):void
 		{
-			var pivotX:Number = node.pivotX + _display.pivotX;
-			var pivotY:Number = node.pivotY + _display.pivotY;
+			var pivotX:Number = _display.pivotX;
+			var pivotY:Number = _display.pivotY;
 			matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 			matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
-			
 			//if(updateStarlingDisplay)
 			//{
-			//_display.transformationMatrix = matrix;
+			//	_display.transformationMatrix = matrix;
 			//}
 			//else
 			//{
-			_display.transformationMatrix.copyFrom(matrix);
+				_display.transformationMatrix.copyFrom(matrix);
 			//}
-			
-			if (colorTransform && _display is Quad)
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function updateColor(
+			aOffset:Number, 
+			rOffset:Number, 
+			gOffset:Number, 
+			bOffset:Number, 
+			aMultiplier:Number, 
+			rMultiplier:Number, 
+			gMultiplier:Number, 
+			bMultiplier:Number
+		):void
+		{
+			if (_display is Quad)
 			{
-				(_display as Quad).alpha = colorTransform.alphaMultiplier;
-				(_display as Quad).color = (uint(colorTransform.redMultiplier * 0xff) << 16) + (uint(colorTransform.greenMultiplier * 0xff) << 8) + uint(colorTransform.blueMultiplier * 0xff);
+				(_display as Quad).alpha = aMultiplier;
+				(_display as Quad).color = (uint(rMultiplier * 0xff) << 16) + (uint(gMultiplier * 0xff) << 8) + uint(bMultiplier * 0xff);
 			}
-			//
-			_display.visible = visible;
-			
-			if(_mask)_mask.visible = false;
 		}
 		
 		/**
@@ -199,7 +211,7 @@
 			_addIndex = index;
 			assessDisplay();
 		}
-		
+
 		private function assessDisplay():void {
 			if (_container) {
 				var display:Object;
@@ -209,7 +221,7 @@
 					display = _display;
 				}
 				if (_addedDisplay == display) return;
-				
+
 				var index:int = _addIndex;
 				if (_addedDisplay) {
 					index = _addedDisplay.parent.getChildIndex(_addedDisplay);
@@ -223,7 +235,7 @@
 					}
 					_addedDisplay = display;
 				}
-				
+
 			}else if (_addedDisplay) {
 				_addedDisplay.parent.removeChild(_addedDisplay);
 				_addedDisplay = null;
@@ -235,9 +247,9 @@
 		 */
 		public function removeDisplay():void
 		{
-			if (_addedDisplay && _addedDisplay.parent)
+			if (_display && _display.parent)
 			{
-				_addedDisplay.parent.removeChild(_addedDisplay);
+				_display.parent.removeChild(_display);
 			}
 		}
 	}

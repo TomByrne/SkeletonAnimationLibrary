@@ -1,5 +1,11 @@
-package starling.extensions.pixelmask
+package dragonBones.display
 {
+	
+	/**
+	 * Based on Jonathan Hart's Pixelmask extension for starling.
+	 * http://wiki.starling-framework.org/extensions/pixelmask
+	 * 
+	 */
 	import flash.display3D.Context3DBlendFactor;
 	import flash.geom.Matrix;
 	
@@ -12,7 +18,7 @@ package starling.extensions.pixelmask
 	import starling.events.Event;
 	import starling.textures.RenderTexture;
 	
-	public class PixelMaskDisplayObject extends DisplayObjectContainer
+	public class StarlingMask extends DisplayObjectContainer
 	{
 		private static const MASK_MODE_NORMAL:String = "mask";
 		private static const MASK_MODE_INVERTED:String = "maskinverted";
@@ -30,7 +36,7 @@ package starling.extensions.pixelmask
 		private var _isAnimated:Boolean = true;
 		private var _maskRendered:Boolean = false;
 		
-		public function PixelMaskDisplayObject(scaleFactor:Number=-1, isAnimated:Boolean=true)
+		public function StarlingMask(scaleFactor:Number=-1, isAnimated:Boolean=true)
 		{
 			super();			
 			

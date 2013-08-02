@@ -8,7 +8,8 @@ package dragonBones.display
 	*/
 
 	
-	import dragonBones.objects.BoneTransform;
+	import dragonBones.objects.DBTransform;
+	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Shape;
@@ -21,15 +22,9 @@ package dragonBones.display
 	 */
 	public class NativeDisplayBridge implements IDisplayBridge
 	{
-		/**
-		 * @private
-		 */
-		protected var _display:DisplayObject;
-		
-		/**
-		 * @private
-		 */
-		protected var _mask:DisplayObject;
+		private var _display:DisplayObject;
+		private var _colorTransform:ColorTransform;
+		private var _mask:DisplayObject;
 		
 		/**
 		 * @inheritDoc
@@ -38,9 +33,6 @@ package dragonBones.display
 		{
 			return _display;
 		}
-		/**
-		 * @private
-		 */
 		public function set display(value:Object):void
 		{
 			if (_display == value)
@@ -55,15 +47,15 @@ package dragonBones.display
 					var index:int = _display.parent.getChildIndex(_display);
 				}
 				removeDisplay();
-				_display.mask = null;
 			}
 			_display = value as DisplayObject;
-			if (_display)
-			{
+			if(_display){
 				_display.mask = _mask;
+				
+				addDisplay(parent, index);
 			}
-			addDisplay(parent, index);
 		}
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -71,9 +63,6 @@ package dragonBones.display
 		{
 			return _mask;
 		}
-		/**
-		 * @private
-		 */
 		public function set mask(value:Object):void
 		{
 			if (_mask == value)
@@ -88,6 +77,21 @@ package dragonBones.display
 		}
 		
 		/**
+		 * @inheritDoc
+		 */
+		public function get visible():Boolean
+		{
+			return _display?_display.visible:false;
+		}
+		public function set visible(value:Boolean):void
+		{
+			if(_display)
+			{
+				_display.visible = value;
+			}
+		}
+		
+		/**
 		 * Creates a new NativeDisplayBridge instance.
 		 */
 		public function NativeDisplayBridge()
@@ -97,19 +101,49 @@ package dragonBones.display
 		/**
 		 * @inheritDoc
 		 */
-		public function update(matrix:Matrix, node:BoneTransform, colorTransform:ColorTransform, visible:Boolean):void
+		public function dispose():void
 		{
-			var pivotX:Number = node.pivotX;
-			var pivotY:Number = node.pivotY;
-			matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
-			matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
-			
+			_display = null;
+			_colorTransform = null;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function updateTransform(matrix:Matrix, transform:DBTransform):void
+		{
 			_display.transform.matrix = matrix;
-			if (colorTransform)
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function updateColor(
+			aOffset:Number, 
+			rOffset:Number, 
+			gOffset:Number, 
+			bOffset:Number, 
+			aMultiplier:Number, 
+			rMultiplier:Number, 
+			gMultiplier:Number, 
+			bMultiplier:Number
+		):void
+		{
+			if(!_colorTransform)
 			{
-				_display.transform.colorTransform = colorTransform;
+				_colorTransform = _display.transform.colorTransform;
 			}
-			_display.visible = visible;
+			_colorTransform.alphaOffset = aOffset;
+			_colorTransform.redOffset = rOffset;
+			_colorTransform.greenOffset = gOffset;
+			_colorTransform.blueOffset = bOffset;
+			
+			_colorTransform.alphaMultiplier = aMultiplier;
+			_colorTransform.redMultiplier = rMultiplier;
+			_colorTransform.greenMultiplier = gMultiplier;
+			_colorTransform.blueMultiplier = bMultiplier;
+			
+			_display.transform.colorTransform = _colorTransform;
 		}
 		
 		/**
