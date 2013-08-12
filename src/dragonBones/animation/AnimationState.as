@@ -397,10 +397,15 @@ package dragonBones.animation
 			
 			_currentTime += passedTime * _timeScale;
 			
-			if (passedTime < 0 && _isComplete) {
-				_isComplete = false;
-				_isPlaying = true;
-				currentLoopCount = _loopCount-1;
+			if (passedTime < 0) {
+				if (_currentTime < 0) {
+					_currentTime = 0;
+				}
+				if(_isComplete){
+					_isComplete = false;
+					_isPlaying = true;
+					currentLoopCount = _loopCount - 1;
+				}
 			}
 			
 			if(_isPlaying && !_isComplete)
