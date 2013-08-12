@@ -39,7 +39,6 @@ package dragonBones.factorys
 	{
 		/** @private */
 		protected static const _helpMatirx:Matrix = new Matrix();
-		private static const _helpArr:Array = [];
 		private static const _loaderContext:LoaderContext = new LoaderContext(false, ApplicationDomain.currentDomain);
 		
 		/** @private */
@@ -252,14 +251,14 @@ package dragonBones.factorys
 		 * <listing>
 		 * var armature:Armature = factory.buildArmature('dragon');
 		 * </listing>
-		 * @param	The name of this Armature instance.
+		 * @param	armatureName The name of this Armature instance.
 		 * @param	The name of this animation.
-		 * @param	The name of this skin.
 		 * @param	The name of this SkeletonData.
 		 * @param	The name of this textureAtlas.
+		 * @param	The name of this skin.
 		 * @return A Armature instance.
 		 */
-		public function buildArmature(armatureName:String, animationName:String = null, skinName:String = null, skeletonName:String = null, textureAtlasName:String = null):Armature
+		public function buildArmature(armatureName:String, animationName:String = null, skeletonName:String = null, textureAtlasName:String = null, skinName:String = null):Armature
 		{
 			if(skeletonName)
 			{
@@ -335,10 +334,16 @@ package dragonBones.factorys
 			}
 			
 			var skinData:SkinData = armatureData.getSkinData(skinName);
+			if(!skinData)
+			{
+				throw new ArgumentError();
+			}
+			
 			var slot:Slot;
 			var displayData:DisplayData;
 			var childArmature:Armature;
 			var i:int;
+			var helpArray:Array = [];
 			var slotData:SlotData;
 			var slotsByName:Dictionary = new Dictionary();
 			for each(slotData in skinData.slotDataList)
@@ -353,31 +358,29 @@ package dragonBones.factorys
 				slot._originZOrder = slotData.zOrder;
 				slot._dislayDataList = slotData.displayDataList;
 				
-				_helpArr.length = 0;
+				helpArray.length = 0;
 				i = slotData.displayDataList.length;
 				while(i --)
 				{
 					displayData = slotData.displayDataList[i];
+					
 					switch(displayData.type)
 					{
 						case DisplayData.ARMATURE:
-							childArmature = buildArmature(displayData.name, null, null, _currentDataName, _currentTextureAtlasName);
+							childArmature = buildArmature(displayData.name, null, _currentDataName, _currentTextureAtlasName);
 							if(childArmature)
 							{
-								_helpArr[i] = childArmature;
+								helpArray[i] = childArmature;
 							}
-							
-							trace(displayData.name, childArmature);
-							
 							break;
 						case DisplayData.IMAGE:
 						default:
-							_helpArr[i] = generateDisplay(_textureAtlasDic[_currentTextureAtlasName], displayData.name, displayData.pivot.x, displayData.pivot.y);
+							helpArray[i] = generateDisplay(_textureAtlasDic[_currentTextureAtlasName], displayData.name, displayData.pivot.x, displayData.pivot.y);
 							break;
 						
 					}
 				}
-				slot.displayList = _helpArr;
+				slot.displayList = helpArray;
 				slot.changeDisplay(0);
 				bone.addChild(slot);
 				slotsByName[slot.name] = slot;

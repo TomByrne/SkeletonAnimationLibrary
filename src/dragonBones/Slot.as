@@ -75,28 +75,7 @@ package dragonBones
 		public function set display(value:Object):void
 		{
 			_displayList[_displayIndex] = value;
-			
-			if(_displayBridge.display)
-			{
-				_displayBridge.display = value;
-			}
-			else
-			{
-				_displayBridge.display = value;
-				if(this._armature)
-				{
-					_displayBridge.addDisplay(this._armature.display);
-					this._armature._slotsZOrderChanged = true;
-				}
-			}
-			if(!_isHideDisplay && _displayBridge.display)
-			{
-				_isDisplayOnStage = true;
-			}
-			else
-			{
-				_isDisplayOnStage = false;
-			}
+			setDisplay(value);
 		}
 		
 		/**
@@ -111,7 +90,7 @@ package dragonBones
 			_displayList[_displayIndex] = value;
 			if(value)
 			{
-				_displayBridge.display = value.display;
+				setDisplay(value.display);
 			}
 		}
 		
@@ -142,6 +121,34 @@ package dragonBones
 			}
 		}
 		
+		private function setDisplay(display:Object):void
+		{
+			if(_displayBridge.display)
+			{
+				_displayBridge.display = display;
+			}
+			else
+			{
+				_displayBridge.display = display;
+				if(this._armature)
+				{
+					_displayBridge.addDisplay(this._armature.display);
+					this._armature._slotsZOrderChanged = true;
+				}
+			}
+			
+			updateChildArmatureAnimation();
+			
+			if(!_isHideDisplay && _displayBridge.display)
+			{
+				_isDisplayOnStage = true;
+			}
+			else
+			{
+				_isDisplayOnStage = false;
+			}
+		}
+		
 		/** @private */
 		dragonBones_internal function changeDisplay(displayIndex:int):void
 		{
@@ -151,6 +158,7 @@ package dragonBones
 				{
 					_isHideDisplay = true;
 					_displayBridge.removeDisplay();
+					updateChildArmatureAnimation();
 				}
 			}
 			else
@@ -158,9 +166,10 @@ package dragonBones
 				if(_isHideDisplay)
 				{
 					_isHideDisplay = false;
+					var changeShowState:Boolean = true;
 					if(this._armature)
 					{
-						_displayBridge.addDisplay(this._armature.display, this._armature._slotList.indexOf(this));
+						_displayBridge.addDisplay(this._armature.display);
 						this._armature._slotsZOrderChanged = true;
 					}
 				}
@@ -173,14 +182,15 @@ package dragonBones
 				if(_displayIndex != displayIndex)
 				{
 					_displayIndex = displayIndex;
+					
 					var content:Object = _displayList[_displayIndex];
 					if(content is Armature)
 					{
-						_displayBridge.display = (content as Armature).display;
+						setDisplay((content as Armature).display);
 					}
 					else
 					{
-						_displayBridge.display = content;
+						setDisplay(content);
 					}
 					
 					if(_dislayDataList && _displayIndex <= _dislayDataList.length)
@@ -188,27 +198,19 @@ package dragonBones
 						this._origin.copy(_dislayDataList[_displayIndex].transform);
 					}
 				}
+				else if(changeShowState)
+				{
+					updateChildArmatureAnimation();
+				}
 			}
 			
 			if(!_isHideDisplay && _displayBridge.display)
 			{
-				if(!_isDisplayOnStage)
-				{
-					_isDisplayOnStage = true;
-					if(childArmature)
-					{
-						childArmature.animation.play();
-					}
-				}
+				_isDisplayOnStage = true;
 			}
-			else if(_isDisplayOnStage)
+			else
 			{
 				_isDisplayOnStage = false;
-				if(childArmature)
-				{
-					childArmature.animation.stop();
-					childArmature.animation._lastAnimationState = null;
-				}
 			}
 		}
 		
@@ -260,6 +262,10 @@ package dragonBones
 		 */
 		override public function dispose():void
 		{
+			if(!_displayBridge)
+			{
+				return;
+			}
 			super.dispose();
 			
 			_displayBridge.dispose();
@@ -294,6 +300,35 @@ package dragonBones
 		dragonBones_internal function updateVisible(value:Boolean):void
 		{
 			_displayBridge.visible = this._parent.visible && this._visible && value;
+		}
+		
+		private function updateChildArmatureAnimation():void
+		{
+			var childArmature:Armature = this.childArmature;
+			
+			if(childArmature)
+			{
+				if(_isHideDisplay)
+				{
+					childArmature.animation.stop();
+					childArmature.animation._lastAnimationState = null;
+				}
+				else
+				{
+					if(
+						this._armature &&
+						this._armature.animation.lastAnimationState &&
+						childArmature.animation.hasAnimation(this._armature.animation.lastAnimationState.name)
+					)
+					{
+						childArmature.animation.gotoAndPlay(this._armature.animation.lastAnimationState.name);
+					}
+					else
+					{
+						childArmature.animation.play();
+					}
+				}
+			}
 		}
 		
 		/**

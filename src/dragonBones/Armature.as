@@ -70,7 +70,8 @@
 	public class Armature extends EventDispatcher implements IAnimatable
 	{
 		private static const _soundManager:SoundEventManager = SoundEventManager.getInstance();
-		private static const _helpArray:Array = [];
+		
+		private const _helpArray:Array = [];
 		
 		/**
 		 * The name of this DBObject instance's Armature instance.
@@ -133,9 +134,25 @@
 		 */
 		public function dispose():void
 		{
+			if(!_animation)
+			{
+				return;
+			}
+			
 			userData = null;
 			
 			_animation.dispose();
+			
+			for each(var slot:Slot in _slotList)
+			{
+				slot.dispose();
+			}
+			
+			for each(var bone:Bone in _boneList)
+			{
+				bone.dispose();
+			}
+			
 			_slotList.fixed = false;
 			_slotList.length = 0;
 			_boneList.fixed = false;
@@ -237,12 +254,15 @@
 		 */
 		public function getSlotByDisplay(display:Object):Slot
 		{
-			var i:int = _slotList.length;
-			while(i --)
+			if(display)
 			{
-				if(_slotList[i].display == display)
+				var i:int = _slotList.length;
+				while(i --)
 				{
-					return _slotList[i];
+					if(_slotList[i].display == display)
+					{
+						return _slotList[i];
+					}
 				}
 			}
 			return null;
@@ -526,10 +546,10 @@
 				var frameEvent:FrameEvent = new FrameEvent(FrameEvent.ANIMATION_FRAME_EVENT);
 				frameEvent.animationState = animationState;
 				frameEvent.frameLabel = frame.event;
-				dispatchEvent(frameEvent);
+				this.dispatchEvent(frameEvent);
 			}
 			
-			if(frame.sound && this.hasEventListener(SoundEvent.SOUND))
+			if(frame.sound && _soundManager.hasEventListener(SoundEvent.SOUND))
 			{
 				var soundEvent:SoundEvent = new SoundEvent(SoundEvent.SOUND);
 				soundEvent.armature = this;
