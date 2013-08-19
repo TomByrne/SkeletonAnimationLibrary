@@ -41,7 +41,7 @@ package dragonBones.display
 		private var _maskRendered:Boolean = false;
 		private var _invalid:Boolean = true;
 		
-		public function StarlingMask(scaleFactor:Number=-1, isAnimated:Boolean=true, autoInvalidate:Number = 0.5)
+		public function StarlingMask(scaleFactor:Number=-1, isAnimated:Boolean=true, autoInvalidate:Number = 1)
 		{
 			super();			
 			
@@ -153,7 +153,6 @@ package dragonBones.display
 				
 				var width:int = Math.ceil(_mask.width * _mask.transformationMatrix.a);
 				var height:int = Math.ceil(_mask.height * _mask.transformationMatrix.d);
-				trace("refreshRenderTextures: "+width+" "+height);
 				
 				_maskRenderTexture = new RenderTexture(width+MASK_GUTTER, height+MASK_GUTTER, false, _scaleFactor); // adding 1 fixes an edge issue
 				_renderTexture = new RenderTexture(width, height, false, _scaleFactor);
@@ -184,7 +183,6 @@ package dragonBones.display
 					
 					var width:int = Math.ceil(_mask.width * _mask.transformationMatrix.a);
 					var height:int = Math.ceil(_mask.height * _mask.transformationMatrix.d);
-				trace("render: "+width+" "+height);
 					
 					if (_maskRenderTexture.width != width+MASK_GUTTER || _maskRenderTexture.height != height+MASK_GUTTER) {
 						refreshRenderTextures();

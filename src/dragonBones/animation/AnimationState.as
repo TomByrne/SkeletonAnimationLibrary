@@ -209,15 +209,14 @@ package dragonBones.animation
 				{
 					_loop = -1;
 				}
-				_pauseBeforeFadeInComplete = false;
 			}
 			else
 			{
 				_timeScale = timeScale;
 				_currentTime = 0;
 				_loop = loop;
-				_pauseBeforeFadeInComplete = pauseBeforeFadeInComplete;
 			}
+			_pauseBeforeFadeInComplete = pauseBeforeFadeInComplete;
 			
 			_fadeInTime = fadeInTime * _timeScale;
 			
@@ -374,15 +373,17 @@ package dragonBones.animation
 				return false;
 			}
 			
+			var event:AnimationEvent;
+			var isComplete:Boolean;
+			
 			if(_fadeIn)
 			{	
 				_fadeIn = false;
 				if(_armature.hasEventListener(AnimationEvent.FADE_IN))
 				{
-					var event:AnimationEvent = new AnimationEvent(AnimationEvent.FADE_IN);
+					event = new AnimationEvent(AnimationEvent.FADE_IN);
 					event.animationState = this;
-					_armature.dispatchEvent(event);
-					event = null;
+					_armature._eventList.push(event);
 				};
 			}
 			
@@ -393,8 +394,7 @@ package dragonBones.animation
 				{
 					event = new AnimationEvent(AnimationEvent.FADE_OUT);
 					event.animationState = this;
-					_armature.dispatchEvent(event);
-					event = null;
+					_armature._eventList.push(event);
 				}
 			}
 			_currentTime += passedTime * _timeScale;
@@ -434,8 +434,7 @@ package dragonBones.animation
 							{
 								event = new AnimationEvent(AnimationEvent.START);
 								event.animationState = this;
-								_armature.dispatchEvent(event);
-								event = null;
+								_armature._eventList.push(event);
 							}
 						}
 						_loopCount = currentLoopCount;
@@ -443,14 +442,14 @@ package dragonBones.animation
 						{
 							if(_loop && _loopCount * _loopCount >= _loop * _loop - 1)
 							{
-								_isComplete = true;
-								_isPlaying = false;
+								isComplete = true;
 								progress = 1;
 								currentLoopCount = 0;
 								if(_armature.hasEventListener(AnimationEvent.COMPLETE))
 								{
 									event = new AnimationEvent(AnimationEvent.COMPLETE);
 									event.animationState = this;
+									_armature._eventList.push(event);
 								}
 							}
 							else
@@ -459,6 +458,7 @@ package dragonBones.animation
 								{
 									event = new AnimationEvent(AnimationEvent.LOOP_COMPLETE);
 									event.animationState = this;
+									_armature._eventList.push(event);
 								}
 							}
 						}
@@ -504,11 +504,6 @@ package dragonBones.animation
 						_armature.arriveAtFrame(_currentFrame, null, this, false);
 					}
 				}
-				
-				if(event)
-				{
-					_armature.dispatchEvent(event);
-				}
 			}
 			
 			//update weight and fadeState
@@ -524,7 +519,7 @@ package dragonBones.animation
 					{
 						event = new AnimationEvent(AnimationEvent.FADE_IN_COMPLETE);
 						event.animationState = this;
-						_armature.dispatchEvent(event);
+						_armature._eventList.push(event);
 					}
 				}
 				else
@@ -543,7 +538,7 @@ package dragonBones.animation
 						{
 							event = new AnimationEvent(AnimationEvent.FADE_IN_COMPLETE);
 							event.animationState = this;
-							_armature.dispatchEvent(event);
+							_armature._eventList.push(event);
 						}
 					}
 				}
@@ -559,7 +554,7 @@ package dragonBones.animation
 					{
 						event = new AnimationEvent(AnimationEvent.FADE_OUT_COMPLETE);
 						event.animationState = this;
-						_armature.dispatchEvent(event);
+						_armature._eventList.push(event);
 					}
 					return true;
 				}
@@ -574,17 +569,21 @@ package dragonBones.animation
 						{
 							event = new AnimationEvent(AnimationEvent.FADE_OUT_COMPLETE);
 							event.animationState = this;
-							_armature.dispatchEvent(event);
+							_armature._eventList.push(event);
 						}
 						return true;
 					}
 				}
 			}
 			
-			if(_isComplete && _loop < 0)
+			if(isComplete)
 			{
 				updated = true;
-				fadeOut((_fadeOutWeight || _fadeInTime) / _timeScale, true);
+				_isComplete = true;
+				if(_loop < 0)
+				{
+					fadeOut((_fadeOutWeight || _fadeInTime) / _timeScale, true);
+				}
 			}
 			
 			return false;
