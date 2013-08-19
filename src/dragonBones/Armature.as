@@ -83,6 +83,8 @@
 		 */
 		public var userData:Object;
 		
+		private var _firstRender:Boolean = true;
+		
 		/** @private */
 		dragonBones_internal var _slotsZOrderChanged:Boolean;
 		/** @private */
@@ -172,6 +174,11 @@
 		public function advanceTime(passedTime:Number):void
 		{
 			_animation.advanceTime(passedTime);
+			if (_firstRender) {
+				_firstRender = false;
+			}else if (!_animation.updated) {
+				return;
+			}
 			
 			var i:int = _boneList.length;
 			while(i --)

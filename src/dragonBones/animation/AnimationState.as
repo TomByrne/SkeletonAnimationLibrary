@@ -56,6 +56,8 @@ package dragonBones.animation
 		public var group:String;
 		public var weight:Number;
 		
+		public var updated:Boolean;
+		
 		/** @private */
 		dragonBones_internal var _timelineStates:Object;
 		/** @private */
@@ -366,6 +368,7 @@ package dragonBones.animation
 		
 		public function advanceTime(passedTime:Number):Boolean
 		{
+			updated = false;
 			if(!enabled)
 			{
 				return false;
@@ -394,7 +397,6 @@ package dragonBones.animation
 					event = null;
 				}
 			}
-			
 			_currentTime += passedTime * _timeScale;
 			
 			if (passedTime < 0) {
@@ -410,6 +412,7 @@ package dragonBones.animation
 			
 			if(_isPlaying && !_isComplete)
 			{
+				updated = true;
 				if(_pauseBeforeFadeInComplete)
 				{
 					_pauseBeforeFadeInComplete = false;
@@ -462,7 +465,6 @@ package dragonBones.animation
 					}
 				}
 				
-				
 				for each(var timeline:TimelineState in _timelineStates)
 				{
 					timeline.update(progress);
@@ -512,6 +514,7 @@ package dragonBones.animation
 			//update weight and fadeState
 			if(_fadeState > 0)
 			{
+				updated = true;
 				if(_fadeInTime == 0)
 				{
 					_fadeWeight = 1;
@@ -547,6 +550,7 @@ package dragonBones.animation
 			}
 			else if(_fadeState < 0)
 			{
+				updated = true;
 				if(_fadeOutTime == 0)
 				{
 					_fadeWeight = 0;
@@ -579,6 +583,7 @@ package dragonBones.animation
 			
 			if(_isComplete && _loop < 0)
 			{
+				updated = true;
 				fadeOut((_fadeOutWeight || _fadeInTime) / _timeScale, true);
 			}
 			

@@ -7,7 +7,9 @@ package dragonBones.display
 	 * 
 	 */
 	import flash.display3D.Context3DBlendFactor;
+	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
+	import flash.utils.Timer;
 	
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
@@ -37,8 +39,9 @@ package dragonBones.display
 		private var _scaleFactor:Number;
 		private var _isAnimated:Boolean = true;
 		private var _maskRendered:Boolean = false;
+		private var _invalid:Boolean = true;
 		
-		public function StarlingMask(scaleFactor:Number=-1, isAnimated:Boolean=true)
+		public function StarlingMask(scaleFactor:Number=-1, isAnimated:Boolean=true, autoInvalidate:Number = 0.5)
 		{
 			super();			
 			
@@ -52,6 +55,21 @@ package dragonBones.display
 			// This avoids memory leaks when people forget to call "dispose" on the object.
 			Starling.current.stage3D.addEventListener(Event.CONTEXT3D_CREATE, 
 				onContextCreated, false, 0, true);
+				
+			addEventListener(Event.CHANGE, onInvalidateEvent);
+			addEventListener(Event.ADDED, onInvalidateEvent);
+			addEventListener(Event.REMOVED, onInvalidateEvent);
+			
+			if (!isNaN(autoInvalidate) && autoInvalidate>0) {
+				var invalidateTimer:Timer = new Timer(autoInvalidate * 1000);
+				invalidateTimer.addEventListener(TimerEvent.TIMER, onInvalidateEvent);
+				invalidateTimer.start();
+			}
+		}
+		
+		private function onInvalidateEvent(e:*):void 
+		{
+			_invalid = true;
 		}
 		
 		public function get isAnimated():Boolean
@@ -131,11 +149,11 @@ package dragonBones.display
 		private function refreshRenderTextures(e:Event=null) : void
 		{
 			if (_mask) {
-				
 				clearRenderTextures();
 				
-				var width:Number = _mask.width * _mask.transformationMatrix.a;
-				var height:Number = _mask.height * _mask.transformationMatrix.d;
+				var width:int = Math.ceil(_mask.width * _mask.transformationMatrix.a);
+				var height:int = Math.ceil(_mask.height * _mask.transformationMatrix.d);
+				trace("refreshRenderTextures: "+width+" "+height);
 				
 				_maskRenderTexture = new RenderTexture(width+MASK_GUTTER, height+MASK_GUTTER, false, _scaleFactor); // adding 1 fixes an edge issue
 				_renderTexture = new RenderTexture(width, height, false, _scaleFactor);
@@ -158,31 +176,37 @@ package dragonBones.display
 		
 		public override function render(support:RenderSupport, parentAlpha:Number):void
 		{
-			if (_isAnimated || (!_isAnimated && !_maskRendered)) {
-				if (_superRenderFlag || !_mask) {
-					super.render(support, parentAlpha);
-				} else {			
-					if (_mask) {
-				
-						var width:Number = _mask.width * _mask.transformationMatrix.a;
-						var height:Number = _mask.height * _mask.transformationMatrix.d;
-						
-						if (_maskRenderTexture.width != width+MASK_GUTTER || _maskRenderTexture.height != height+MASK_GUTTER) {
-							refreshRenderTextures();
-						}
-						
-						var matrix:Matrix = _mask.transformationMatrix.clone();
-						matrix.tx = 0;
-						matrix.ty = 0;
-						_maskRenderTexture.draw(_mask, matrix);
-						_renderTexture.drawBundled(drawRenderTextures);				
-						_image.render(support, parentAlpha);
-						_maskRendered = true;
-					}
-				}
+			if (_superRenderFlag || !_mask) {
+				super.render(support, parentAlpha);
 			} else {
-				_image.render(support, parentAlpha);
+				if (!_maskRendered || (_isAnimated && _invalid)) {
+					_invalid = false;
+					
+					var width:int = Math.ceil(_mask.width * _mask.transformationMatrix.a);
+					var height:int = Math.ceil(_mask.height * _mask.transformationMatrix.d);
+				trace("render: "+width+" "+height);
+					
+					if (_maskRenderTexture.width != width+MASK_GUTTER || _maskRenderTexture.height != height+MASK_GUTTER) {
+						refreshRenderTextures();
+					}
+					
+					var matrix:Matrix = _mask.transformationMatrix.clone();
+					matrix.tx = 0;
+					matrix.ty = 0;
+					_maskRenderTexture.draw(_mask, matrix);
+					_renderTexture.drawBundled(drawRenderTextures);				
+					_image.render(support, parentAlpha);
+					_maskRendered = true;
+					
+				} else {
+					_image.render(support, parentAlpha);
+				}
 			}
+		}
+		
+		public function invalidate():void 
+		{
+			_invalid = true;
 		}
 		
 		private function drawRenderTextures() : void

@@ -179,6 +179,7 @@
 			//{
 				_display.transformationMatrix.copyFrom(matrix);
 			//}
+			if (_maskWrapper)_maskWrapper.invalidate();
 		}
 		
 		/**

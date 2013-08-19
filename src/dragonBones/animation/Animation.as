@@ -81,6 +81,8 @@
 		private var _armature:Armature;
 		private var _isPlaying:Boolean;
 		
+		public var updated:Boolean;
+		
 		/**
 		 * An vector containing all AnimationData names the Animation can play.
 		 * @see dragonBones.objects.AnimationData.
@@ -484,6 +486,8 @@
 			var transform:DBTransform;
 			var pivot:Point;
 			
+			updated = false;
+			
 			l --;
 			while(k --)
 			{
@@ -516,6 +520,9 @@
 								removeState(animationState);
 								continue;
 							}
+							if (animationState.updated) {
+								updated = true;
+							}
 						}
 						
 						timelineState = animationState._timelineStates[boneName];
@@ -547,17 +554,19 @@
 						weigthLeft -= layerTotalWeight;
 					}
 				}
-				transform = bone._tween;
-				pivot = bone._tweenPivot;
-				
-				transform.x = x;
-				transform.y = y;
-				transform.skewX = skewX;
-				transform.skewY = skewY;
-				transform.scaleX = scaleX;
-				transform.scaleY = scaleY;
-				pivot.x = pivotX;
-				pivot.y = pivotY;
+				if(updated){
+					transform = bone._tween;
+					pivot = bone._tweenPivot;
+					
+					transform.x = x;
+					transform.y = y;
+					transform.skewX = skewX;
+					transform.skewY = skewY;
+					transform.scaleX = scaleX;
+					transform.scaleY = scaleY;
+					pivot.x = pivotX;
+					pivot.y = pivotY;
+				}
 			}
 		}
 		
