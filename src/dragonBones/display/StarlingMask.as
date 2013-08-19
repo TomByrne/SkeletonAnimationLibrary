@@ -23,6 +23,8 @@ package dragonBones.display
 		private static const MASK_MODE_NORMAL:String = "mask";
 		private static const MASK_MODE_INVERTED:String = "maskinverted";
 		
+		private static const MASK_GUTTER:int = 1; // adds padding to avoid cropping issue
+		
 		private var _mask:DisplayObject;
 		private var _renderTexture:RenderTexture;
 		private var _maskRenderTexture:RenderTexture;
@@ -135,7 +137,7 @@ package dragonBones.display
 				var width:Number = _mask.width * _mask.transformationMatrix.a;
 				var height:Number = _mask.height * _mask.transformationMatrix.d;
 				
-				_maskRenderTexture = new RenderTexture(width+1, height+1, false, _scaleFactor); // adding 1 fixes an edge issue
+				_maskRenderTexture = new RenderTexture(width+MASK_GUTTER, height+MASK_GUTTER, false, _scaleFactor); // adding 1 fixes an edge issue
 				_renderTexture = new RenderTexture(width, height, false, _scaleFactor);
 				
 				// create image with the new render texture
@@ -165,7 +167,7 @@ package dragonBones.display
 						var width:Number = _mask.width * _mask.transformationMatrix.a;
 						var height:Number = _mask.height * _mask.transformationMatrix.d;
 						
-						if (_maskRenderTexture.width != width || _maskRenderTexture.height != height) {
+						if (_maskRenderTexture.width != width+MASK_GUTTER || _maskRenderTexture.height != height+MASK_GUTTER) {
 							refreshRenderTextures();
 						}
 						
