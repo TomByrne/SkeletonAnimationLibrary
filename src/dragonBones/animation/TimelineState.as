@@ -172,6 +172,9 @@ package dragonBones.animation
 		
 		public function update(progress:Number):void
 		{
+			if (_updateState == 0 && progress < 1) {
+				_updateState = 1;
+			}
 			if(_updateState)
 			{
 				if(_updateState > 0)
