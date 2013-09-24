@@ -196,9 +196,9 @@
 			bMultiplier:Number
 		):void
 		{
+			_display.alpha = aMultiplier;
 			if (_display is Quad)
 			{
-				(_display as Quad).alpha = aMultiplier;
 				if (rMultiplier == 0 && gMultiplier == 0 && bMultiplier == 0) {
 					(_display as Quad).color = (uint(rOffset) << 16) + (uint(gOffset) << 8) + uint(bOffset);
 				}else{

@@ -375,6 +375,8 @@
 				}
 			}
 			
+			_lastAnimationState.advanceTime(0);
+			
 			return _lastAnimationState;
 		}
 		
@@ -531,7 +533,7 @@
 						
 						timelineState = animationState._timelineStates[boneName];
 						
-						if(timelineState)
+						if(timelineState && timelineState.tweenActive)
 						{
 							weight = animationState._fadeWeight * animationState.weight * weigthLeft;
 							transform = timelineState.transform;
