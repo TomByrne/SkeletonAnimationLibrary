@@ -342,9 +342,10 @@
 			var i:int = _boneList.length;
 			while(i --)
 			{
-				if(_boneList[i].name == boneName)
+				var bone:Bone = _boneList[i];
+				if(bone.name == boneName)
 				{
-					return _boneList[i];
+					return bone;
 				}
 			}
 			return null;
