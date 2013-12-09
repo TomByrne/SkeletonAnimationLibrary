@@ -98,6 +98,10 @@ package dragonBones.animation
 		{
 			return _loop;
 		}
+		public function set loop(value:int):void
+		{
+			_loop = value;
+		}
 		
 		private var _layer:uint;
 		public function get layer():uint
