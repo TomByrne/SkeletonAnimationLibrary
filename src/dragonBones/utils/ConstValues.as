@@ -60,6 +60,7 @@
 		public static const A_GREEN_MULTIPLIER:String = "gM";
 		public static const A_BLUE_MULTIPLIER:String = "bM";
 		public static const A_MASK:String = "mask";
+		public static const A_BLENDMODE:String = "blendMode";
 		public static const A_BACKGROUND_COLOR:String = "backgroundColor";
 	}
 

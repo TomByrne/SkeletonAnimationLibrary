@@ -26,6 +26,8 @@ package dragonBones.display
 		private var _colorTransform:ColorTransform;
 		private var _mask:DisplayObject;
 		
+		private var _blendMode:String;
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -50,6 +52,7 @@ package dragonBones.display
 			}
 			_display = value as DisplayObject;
 			if(_display){
+				if(_blendMode)_display.blendMode = _blendMode;
 				_display.mask = _mask;
 				
 				addDisplay(parent, index);
@@ -88,6 +91,20 @@ package dragonBones.display
 			if(_display)
 			{
 				_display.visible = value;
+			}
+		}
+		
+		public function get blendMode():String 
+		{
+			return _blendMode;
+		}
+		
+		public function set blendMode(value:String):void 
+		{
+			_blendMode = value;
+			if(_display && _blendMode)
+			{
+				_display.blendMode = _blendMode;
 			}
 		}
 		

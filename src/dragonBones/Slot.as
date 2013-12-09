@@ -226,6 +226,16 @@ package dragonBones
 			}
 		}
 		
+		public function get blendMode():String 
+		{
+			return _displayBridge.blendMode;
+		}
+		
+		public function set blendMode(value:String):void 
+		{
+			_displayBridge.blendMode = value;
+		}
+		
 		/** @private */
 		override dragonBones_internal function setArmature(value:Armature):void
 		{
@@ -241,10 +251,10 @@ package dragonBones
 			}
 		}
 		
-		public function Slot(displayBrideg:IDisplayBridge)
+		public function Slot(displayBridge:IDisplayBridge)
 		{
 			super();
-			_displayBridge = displayBrideg;
+			_displayBridge = displayBridge;
 			_displayList = [];
 			_displayIndex = -1;
 			_scaleType = 1;

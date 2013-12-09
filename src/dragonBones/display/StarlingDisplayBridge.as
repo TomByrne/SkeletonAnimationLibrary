@@ -9,6 +9,7 @@
 
 	
 	import dragonBones.objects.DBTransform;
+	import starling.display.BlendMode;
 	
 	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
@@ -38,6 +39,8 @@
 		
 		private var _addIndex:int;
 		private var _container:Object;
+		
+		private var _blendMode:String;
 		/**
 		 * @inheritDoc
 		 */
@@ -62,7 +65,7 @@
 					}
 					return;
 				}
-			
+				
 				from.texture = to.texture;
 				//update pivot
 				from.pivotX = to.pivotX;
@@ -95,6 +98,7 @@
 			_display = value;
 			//addDisplay(parent, index);
 			if(_display){
+				if(_blendMode) _display.blendMode = _blendMode;
 				if (_mask) {
 					_maskWrapper.addChild(_display as DisplayObject);
 				}else {
@@ -142,6 +146,20 @@
 			if (_mask && _display)
 			{
 				_maskWrapper.addChild(_display as DisplayObject);
+			}
+		}
+		
+		public function get blendMode():String 
+		{
+			return _blendMode;
+		}
+		
+		public function set blendMode(value:String):void 
+		{
+			_blendMode = value;
+			if(_display && _blendMode)
+			{
+				_display.blendMode = _blendMode;
 			}
 		}
 		

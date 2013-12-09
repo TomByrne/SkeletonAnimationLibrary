@@ -27,6 +27,10 @@ package dragonBones.display
 		function get display():Object;
 		function set display(value:Object):void;
 		
+		
+		function get blendMode():String;
+		function set blendMode(value:String):void;
+		
 		/**
 		 * Masking DisplayObject.
 		 */

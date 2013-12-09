@@ -131,6 +131,7 @@
 			slotData.parent = slotObject[ConstValues.A_PARENT];
 			slotData.zOrder = Number(slotObject[ConstValues.A_Z_ORDER]);
 			slotData.mask = slotObject[ConstValues.A_MASK];
+			slotData.blendMode = slotObject[ConstValues.A_BLENDMODE];
 			for each(var displayObject:Object in slotObject[ConstValues.DISPLAY])
 			{
 				slotData.addDisplayData(parseDisplayData(displayObject, data));

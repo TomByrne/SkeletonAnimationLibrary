@@ -38,7 +38,7 @@ package dragonBones.factorys
 	public class BaseFactory extends EventDispatcher
 	{
 		/** @private */
-		protected static const _helpMatirx:Matrix = new Matrix();
+		protected static const _helpMatrix:Matrix = new Matrix();
 		private static const _loaderContext:LoaderContext = new LoaderContext(false, ApplicationDomain.currentDomain);
 		
 		/** @private */
@@ -355,6 +355,7 @@ package dragonBones.factorys
 				}
 				slot = generateSlot();
 				slot.name = slotData.name;
+				slot.blendMode = slotData.blendMode;
 				slot._originZOrder = slotData.zOrder;
 				slot._dislayDataList = slotData.displayDataList;
 				

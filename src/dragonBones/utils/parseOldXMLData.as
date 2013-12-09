@@ -78,6 +78,7 @@ const A_ACTION:String = "mov";
 const A_VISIBLE:String = "visible";
 const A_DISPLAY_INDEX:String = "dI";
 const A_Z_ORDER:String = "z";
+const A_BLENDMODE:String = "blendMode";
 const A_X:String = "x";
 const A_Y:String = "y";
 const A_SKEW_X:String = "kX";
@@ -143,6 +144,7 @@ function parseSlotData(boneXML:XML, data:SkeletonData):SlotData
 	slotData.name = boneXML.@[A_NAME];
 	slotData.parent = slotData.name;
 	slotData.zOrder = boneXML.@[A_Z_ORDER];
+	slotData.blendMode = boneXML.@[A_BLENDMODE];
 	
 	for each(var displayXML:XML in boneXML[DISPLAY])
 	{

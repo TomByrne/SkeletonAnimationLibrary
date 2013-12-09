@@ -4,6 +4,7 @@ package dragonBones.objects
 	public final class SlotData
 	{
 		public var name:String;
+		public var blendMode:String;
 		public var parent:String;
 		public var zOrder:Number;
 		public var mask:String;

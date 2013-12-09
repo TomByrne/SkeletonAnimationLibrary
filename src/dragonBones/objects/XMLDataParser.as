@@ -153,6 +153,7 @@
 			slotData.parent = slotXML.@[ConstValues.A_PARENT];
 			slotData.zOrder = Number(slotXML.@[ConstValues.A_Z_ORDER]);
 			slotData.mask = slotXML.@[ConstValues.A_MASK];
+			if(slotXML.@[ConstValues.A_BLENDMODE].length())slotData.blendMode = slotXML.@[ConstValues.A_BLENDMODE];
 			for each(var displayXML:XML in slotXML[ConstValues.DISPLAY])
 			{
 				slotData.addDisplayData(parseDisplayData(displayXML, data));
